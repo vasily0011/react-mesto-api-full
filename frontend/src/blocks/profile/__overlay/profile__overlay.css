@@ -1,0 +1,27 @@
+.profile__overlay {
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.profile__overlay::before {
+  content: "";
+  position: absolute;
+  background-image: url(../../../images/pen.png);
+  background-repeat: no-repeat;
+  width: 26px;
+  height: 26px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.profile__overlay:hover {
+  cursor: pointer;
+  opacity: 1;
+}

@@ -1,0 +1,17 @@
+.login__input {
+  padding: 0;
+  margin-bottom: 30px;
+  border: none;
+  border-bottom: 2px solid #cccccc;
+  background-color: black;
+  color: #cccccc;
+  font-family: "Inter", Arial, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+.login__input:nth-last-child(2) {
+  margin-bottom: 216px;
+}

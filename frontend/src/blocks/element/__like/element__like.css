@@ -1,0 +1,7 @@
+.element__like {
+    align-content: flex-start;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
