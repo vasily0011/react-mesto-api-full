@@ -4,10 +4,13 @@ function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    onLogin({ password, email });
-  };
+    if (!email || !password) {
+      return;
+    }
+    onLogin(email, password);
+  }
 
   return (
     <div className="login">

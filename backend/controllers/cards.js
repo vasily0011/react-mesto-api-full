@@ -5,8 +5,8 @@ const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
-    .then((card) => {
-      res.send({ card });
+    .then((cards) => {
+      res.send({ cards });
     })
     .catch((err) => next(err));
 };
@@ -15,7 +15,7 @@ module.exports.createCard = (req, res, next) => {
   const { name, link, owner = req.user._id } = req.body;
   Card.create({ name, link, owner })
     .then((card) => {
-      res.send({ card });
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -56,7 +56,7 @@ module.exports.likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (card) {
-        return res.send({ card });
+        return res.send(card);
       }
       return next(new NotFoundError('Такой карточки не существует'));
     })
@@ -76,7 +76,7 @@ module.exports.dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (card) {
-        return res.send({ card });
+        return res.send(card);
       }
       return next(new NotFoundError('Такой карточки не существует'));
     })

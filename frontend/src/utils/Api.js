@@ -1,93 +1,127 @@
 class Api {
-  constructor(url) {
-    this._url = url;
-    this._headers = {
-      authorization: "4939b81c-66db-439d-a731-f61a026bd167",
-      "Content-Type": "application/json",
-    };
-  }
+  constructor(options) {
+    this._url = options.url;
+    this._headers = options.headers;
+}
 
   _checkResponse(res) {
     if (res.ok) {
       return res.json();
     }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return res.json()
+    .then((err) => {
+      err.errorCode = res.status;
+      return Promise.reject(err);
+    })
+    
   }
+
+  _getHeaders() {
+    const jwt = localStorage.getItem('jwt');
+    return {
+        'Authorization': `Bearer ${jwt}`,
+        ...this._headers,
+    };
+}
 
   
 
   getInitialCards() {
     return fetch(`${this._url}/cards`, {
       method: 'GET',
-      headers: this._headers,
+      headers: this._getHeaders(),
     })
-    .then(this._checkResponse);
+    .then(res => {
+      return this._checkResponse(res);
+    })
   }
 
   getUserInfo() {
     return fetch(`${this._url}/users/me`, {
-      headers: this._headers
+      headers: this._getHeaders(),
     })
-      .then(this._checkResponse);
+    .then(res => {
+      return this._checkResponse(res);
+    })
   } 
 
-  setUserInfo(item) {
+  setUserInfo(name, about) {
     return fetch(`${this._url}/users/me`, {
       method: 'PATCH',
-      headers: this._headers,
+      headers: this._getHeaders(),
       body: JSON.stringify({
-        name: item.name,
-        about: item.about
+        name: name,
+        about: about
       })
     })
-    .then(this._checkResponse);
+    .then(res => {
+      return this._checkResponse(res);
+    })
   }
 
-  setUserAvatar(item) {
+  setUserAvatar(avatar) {
     return fetch(`${this._url}/users/me/avatar`, {
       method: "PATCH",
-      headers: this._headers,
+      headers: this._getHeaders(),
       body: JSON.stringify({
-        avatar: item.avatar
+        avatar: avatar,
       }),
-    }).then(this._checkResponse);
+    })
+    .then(res => {
+      return this._checkResponse(res);
+    })
   }
 
-  addNewCard(item) {
+  addNewCard({name, link}) {
     return fetch(`${this._url}/cards`, {
       method: 'POST',
-      headers: this._headers,
+      headers: this._getHeaders(),
       body: JSON.stringify({
-        name: item.name,
-        link: item.link
+        name: name,
+        link: link
       })
     })
-    .then(this._checkResponse);
+    .then(res => {
+      return this._checkResponse(res);
+    })
   }
 
   changeLikeCardStatus(cardId, like) {
     return fetch(`${this._url}/cards/${cardId}/likes`, {
       method: (like ? "PUT": "DELETE"),
-      headers: this._headers
+      headers: this._getHeaders(),
     })
-    .then(this._checkResponse);
+    .then(res => {
+      return this._checkResponse(res);
+    })
   };
 
   deleteLike(cardId) {
     return fetch(`${this._url}/cards/${cardId}/likes`, {
     method: 'DELETE',
-    headers: this._headers,
+    headers: this._getHeaders(),
   })
-  .then(this._checkResponse);
+  .then(res => {
+    return this._checkResponse(res);
+  })
   }
 
   deleteCard(cardId) {
     return fetch(`${this._url}/cards/${cardId}`, {
       method: 'DELETE', 
-      headers: this._headers
+      headers: this._getHeaders(),
     })
-    .then(this._checkResponse);
+    // .then(this._checkResponse);
+    .then(res => {
+      return this._checkResponse(res);
+    })
   }
 }
 
-export default new Api('https://nomoreparties.co/v1/cohort-45');
+// export default new Api('http://localhost:3001');
+export default new Api({
+  url: 'http://localhost:3001',
+  headers: {
+      'Content-Type': 'application/json'
+  }
+});

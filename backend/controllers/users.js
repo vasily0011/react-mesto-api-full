@@ -7,10 +7,13 @@ const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
-      res.send({ data: users });
+      // res.send({ data: users });
+      res.send(users);
     })
     .catch((err) => next(err));
 };
@@ -19,20 +22,32 @@ module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user) {
-        return res.send({ user });
+        return res.send(user);
       }
       return next(new NotFoundError('Запрашиваемый пользователь не найден'));
     })
     .catch((err) => next(err));
 };
 
+// module.exports.getCurrentUser = (req, res, next) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       if (!user) {
+//         return next(new NotFoundError('Пользователь не найден.'));
+//       }
+//       return res.send(user);
+//     })
+//     .catch(next);
+// };
+
 module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
+  const { _id } = req.user;
+  User.findById(_id)
     .then((user) => {
       if (!user) {
         return next(new NotFoundError('Пользователь не найден.'));
       }
-      res.send({ user });
+      return res.send(user);
     })
     .catch(next);
 };
@@ -41,15 +56,12 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email,
   } = req.body;
-  bcrypt.hash(req.body.password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
+  bcrypt.hash(req.body.password, 10).then((hash) => User.create({
+    name, about, avatar, email, password: hash,
+  }))
+    .then(() => res.send({
+      name, about, avatar, email,
     }))
-    .then(() => {
-      res.send({
-        name, about, avatar, email,
-      });
-    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(new ValidationError('Переданы некорректные данные при создании пользователя'));
@@ -71,7 +83,7 @@ module.exports.editUserProfile = (req, res, next) => {
       if (!user) {
         return next(new NotFoundError('Запрашиваемый пользователь не найден'));
       }
-      return res.send({ user });
+      return res.send(user);
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
@@ -93,7 +105,7 @@ module.exports.editUserAvatar = (req, res, next) => {
       if (!user) {
         return next(new NotFoundError('Запрашиваемый пользователь не найден'));
       }
-      return res.send({ user });
+      return res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -107,9 +119,11 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'secret-key', { expiresIn: '7d' });
-      res.cookie('jwt', token, { httpOnly: true });
-      res.send({ data: token });
+      // const token = jwt.sign({ _id: user._id }, 'secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, `${NODE_ENV === 'production' ? JWT_SECRET : 'secret_key'}`, { expiresIn: '7d' });
+      // res.cookie('jwt', token, { httpOnly: true });
+      res.send({ token });
+      // res.send({ data: token });
     })
     .catch(next);
 };

@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const { auth } = require('./middlewares/auth');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
@@ -16,11 +18,29 @@ const { PORT = 3001 } = process.env;
 
 const app = express();
 
+const allowedCors = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://localhost:3000',
+  'https://localhost:3001',
+];
+
+app.use(cors({
+  origin: allowedCors,
+  credentials: true,
+}));
+
 mongoose.connect('mongodb://localhost:27017/mestodb', {});
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(requestLogger);
 
 app.post(

@@ -12,7 +12,7 @@ const Register = ({ onRegister }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onRegister({ email, password });
+    onRegister(email, password);
   };
 
   return (
@@ -37,7 +37,7 @@ const Register = ({ onRegister }) => {
           Зарегистрироваться
         </button>
       </form>
-      <NavLink className="login__link" to="/sign-in">
+      <NavLink className="login__link" to="/signin">
         Уже зарегистрированы? Войти
       </NavLink>
     </div>

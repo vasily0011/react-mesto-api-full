@@ -36,27 +36,43 @@ function App() {
 
   const history = useHistory();
 
-  useEffect(() => {
-    api
-      .getUserInfo()
-      .then((userData) => {
-        setCurrentUser(userData);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [loggedIn]);
+  // useEffect(() => {
+  //   api
+  //     .getUserInfo()
+  //     .then((userData) => {
+  //       setCurrentUser(userData);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // }, [loggedIn]);
+  // console.log(setCurrentUser);
+
+  // useEffect(() => {
+  //   api
+  //     .getInitialCards()
+  //     .then((cardsData) => {
+  //       setCards(cardsData);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // }, [loggedIn]);
 
   useEffect(() => {
-    api
-      .getInitialCards()
-      .then((cardsData) => {
-        setCards(cardsData);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [loggedIn]);
+    if (loggedIn) {
+        Promise.all([api.getUserInfo(), api.getInitialCards()])
+            .then(([userData, {cards}]) => {
+              console.dir(cards);
+                setCurrentUser(userData);
+                setCards(cards);
+                
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+}, [loggedIn]);
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(!isEditAvatarPopupOpen);
@@ -82,31 +98,22 @@ function App() {
     setIsInfoTooltipOpen(false);
   }
 
-  function handleUpdateUser(item) {
-    api
-      .setUserInfo(item)
-      .then((item) => {
-        setCurrentUser({
-          name: item.name,
-          about: item.about,
-          avatar: item.avatar,
-        });
-        closeAllPopups();
-      })
+  function handleUpdateUser(data) {
+    api.setUserInfo(data.name, data.about)
+            .then((newUser) => {
+                setCurrentUser(newUser);
+                closeAllPopups();
+            })
       .catch((err) => {
         console.log(err);
       });
   }
 
-  function handleUpdateAvatar(item) {
+  function handleUpdateAvatar(data) {
     api
-      .setUserAvatar(item)
-      .then((item) => {
-        setCurrentUser({
-          name: item.name,
-          about: item.about,
-          avatar: item.avatar,
-        });
+      .setUserAvatar(data.avatar)
+      .then((newAvatar) => {
+        setCurrentUser(newAvatar);
         closeAllPopups();
       })
       .catch((err) => {
@@ -115,13 +122,13 @@ function App() {
   }
 
   function handleCardLike(card) {
-    const isLiked = card.likes.some((i) => i._id === currentUser._id);
+    const isLiked = card.likes.some((i) => i === currentUser._id);
 
     api
       .changeLikeCardStatus(card._id, !isLiked)
       .then((newCard) => {
         setCards((state) =>
-          state.map((c) => (c._id === card._id ? newCard : c))
+          state.map(((c) => c._id === card._id ? newCard : c))
         );
       })
       .catch((err) => {
@@ -165,34 +172,34 @@ function App() {
   }, [isOpen]);
 
   useEffect(() => {
+    const tokenCheck = () => {
+      const jwt = localStorage.getItem("jwt");
+      if (!jwt) {
+        return;
+      }
+      auth
+        .getContent(jwt)
+        .then((res) => {
+          setEmail(res.email);
+          setLoggedIn(true);
+          history.push("/");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
     tokenCheck();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [history]);
 
-  const tokenCheck = () => {
-    const jwt = localStorage.getItem("jwt");
-    if (!jwt) {
-      return;
-    }
+  
+
+  const onLogin = (email, password) => {
     auth
-      .getContent(jwt)
+      .authorize(email, password)
       .then((res) => {
-        setEmail(res.data.email);
+        localStorage.setItem("jwt", res.token);
         setLoggedIn(true);
-        history.push("/");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const onLogin = (data) => {
-    return auth
-      .authorize(data)
-      .then(({ token }) => {
-        setLoggedIn(true);
-        localStorage.setItem("jwt", token);
-        setEmail(data.email);
+        setEmail(email);
         history.push("/");
       })
       .catch((err) => {
@@ -202,13 +209,13 @@ function App() {
       });
   };
 
-  const onRegister = (data) => {
+  const onRegister = (email, password) => {
     return auth
-      .register(data)
+      .register(email, password)
       .then(() => {
         setIsSuccess(true);
         setIsInfoTooltipOpen(true);
-        history.push("/sign-in");
+        history.push("/signin");
       })
       .catch((err) => {
         console.log(err);
@@ -220,7 +227,7 @@ function App() {
   const onSingOut = () => {
     setLoggedIn(false);
     localStorage.removeItem("jwt");
-    history.push("/sign-in");
+    history.push("/signin");
     setEmail("");
   };
 
@@ -228,10 +235,10 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <Header userEmail={email} onSingOut={onSingOut} />
       <Switch>
-        <Route path="/sign-in">
+        <Route path="/signin">
           <Login onLogin={onLogin} />
         </Route>
-        <Route path="/sign-up">
+        <Route path="/signup">
           <Register onRegister={onRegister} />
         </Route>
         <ProtectedRoute

@@ -45,6 +45,7 @@ function Main({
       <section className="cards">
         <ul className="elements">
           {cards.map((item) => {
+            console.dir(item);
             return (
               <Card
                 card={item}

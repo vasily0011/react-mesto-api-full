@@ -6,3 +6,5 @@ export const config = {
     inputErrorClass: 'popup__input_type_error',
     errorClass: '.popup__error'
   };
+
+  export const url = 'http://localhost:3001';
