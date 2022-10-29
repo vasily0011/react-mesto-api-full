@@ -1,4 +1,4 @@
-export const BASE_URL = "http://domainname.backend.nomoredomains.icu";
+export const BASE_URL = "https://domainname.backend.nomoredomains.icu";
 
 function getResponse(res) {
   if (res.ok) {
