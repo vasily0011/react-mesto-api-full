@@ -7,4 +7,4 @@ export const config = {
     errorClass: '.popup__error'
   };
 
-  export const url = 'http://localhost:3001';
+  // export const url = 'http://localhost:3001';

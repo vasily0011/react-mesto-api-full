@@ -36,29 +36,6 @@ function App() {
 
   const history = useHistory();
 
-  // useEffect(() => {
-  //   api
-  //     .getUserInfo()
-  //     .then((userData) => {
-  //       setCurrentUser(userData);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // }, [loggedIn]);
-  // console.log(setCurrentUser);
-
-  // useEffect(() => {
-  //   api
-  //     .getInitialCards()
-  //     .then((cardsData) => {
-  //       setCards(cardsData);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // }, [loggedIn]);
-
   useEffect(() => {
     if (loggedIn) {
         Promise.all([api.getUserInfo(), api.getInitialCards()])

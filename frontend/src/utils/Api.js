@@ -120,7 +120,7 @@ class Api {
 
 // export default new Api('http://localhost:3001');
 export default new Api({
-  url: 'http://localhost:3001',
+  url: 'http://domainname.backend.nomoredomains.icu',
   headers: {
       'Content-Type': 'application/json'
   }

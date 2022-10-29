@@ -23,6 +23,8 @@ const allowedCors = [
   'http://localhost:3001',
   'https://localhost:3000',
   'https://localhost:3001',
+  'http://domainname.frontend.nomoredomains.icu',
+  'https://domainname.frontend.nomoredomains.icu',
 ];
 
 app.use(cors({
