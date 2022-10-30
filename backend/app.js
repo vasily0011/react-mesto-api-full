@@ -3,8 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
-// const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const helmet = require('helmet');
 const { auth } = require('./middlewares/auth');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
@@ -27,6 +27,7 @@ const allowedCors = [
   'https://domainname.frontend.nomoredomains.icu',
 ];
 
+app.use(helmet());
 app.use(cors({
   origin: allowedCors,
   credentials: true,
